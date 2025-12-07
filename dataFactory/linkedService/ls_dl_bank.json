@@ -1,0 +1,14 @@
+{
+	"name": "ls_dl_bank",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "https://dlbankcustomerchurn.dfs.core.windows.net/",
+			"credential": {
+				"referenceName": "uami-credentials",
+				"type": "CredentialReference"
+			}
+		}
+	}
+}
