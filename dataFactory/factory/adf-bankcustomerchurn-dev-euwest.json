@@ -1,0 +1,15 @@
+{
+	"name": "adf-bankcustomerchurn-dev-euwest",
+	"location": "westeurope",
+	"identity": {
+		"type": "SystemAssigned,UserAssigned",
+		"principalId": "64b3c5b9-1202-42e8-a18a-dedd2b786785",
+		"tenantId": "c5daae7f-6073-41e9-989d-c33dd501865e",
+		"userAssignedIdentities": {
+			"/subscriptions/c9305787-19cf-46de-8474-1f79604c4227/resourcegroups/rg-bankcustomerchurn-dev-euwest/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uami-bank": {
+				"clientId": "47dd5ff1-e0b7-4998-bb74-de7d713b07be",
+				"principalId": "bd5a740c-9044-4ba4-8cc4-233e16ac9f17"
+			}
+		}
+	}
+}
