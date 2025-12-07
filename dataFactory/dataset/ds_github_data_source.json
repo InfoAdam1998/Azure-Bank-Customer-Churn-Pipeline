@@ -1,0 +1,33 @@
+{
+	"name": "ds_github_data_source",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_github_bank",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"p_rel_url": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "github_to_landing"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": {
+					"value": "@dataset().p_rel_url",
+					"type": "Expression"
+				}
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}

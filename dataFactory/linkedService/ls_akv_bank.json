@@ -1,0 +1,14 @@
+{
+	"name": "ls_akv_bank",
+	"properties": {
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://akv-bank.vault.azure.net/",
+			"credential": {
+				"referenceName": "uami-credentials",
+				"type": "CredentialReference"
+			}
+		}
+	}
+}
