@@ -1,0 +1,38 @@
+{
+	"name": "ds_github_landing_sink",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_dl_bank",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"p_file": {
+				"type": "string"
+			},
+			"p_folder": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().p_folder",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().p_file",
+					"type": "Expression"
+				},
+				"fileSystem": "landing"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
