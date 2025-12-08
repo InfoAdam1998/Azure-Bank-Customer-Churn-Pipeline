@@ -87,8 +87,7 @@
 								},
 								"fieldList": [
 									"exists",
-									"size",
-									"columnCount"
+									"size"
 								],
 								"storeSettings": {
 									"type": "AzureBlobFSReadSettings",
@@ -202,7 +201,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "@and(\n    activity('Get Metadata in landing').output.exists,\n    and(\n        greater(activity('Get Metadata in landing').output.size, 0),\n        greater(length(activity('Get Metadata in landing').output.columnNames), 0)\n    )\n)\n",
+									"value": "@and(activity('Get Metadata in landing').output.exists, greater(activity('Get Metadata in landing').output.size, 0))\n",
 									"type": "Expression"
 								},
 								"ifFalseActivities": [
