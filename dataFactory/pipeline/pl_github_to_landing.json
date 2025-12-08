@@ -139,7 +139,7 @@
 								"logSettings": {
 									"enableCopyActivityLog": true,
 									"copyActivityLogSettings": {
-										"logLevel": "Warning",
+										"logLevel": "Info",
 										"enableReliableLogging": false
 									},
 									"logLocationSettings": {
