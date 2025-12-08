@@ -1,0 +1,24 @@
+{
+	"name": "pl_execute_pipeline",
+	"properties": {
+		"activities": [
+			{
+				"name": "Execute Pipeline data ingestion",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_github_to_landing",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"annotations": []
+	}
+}
