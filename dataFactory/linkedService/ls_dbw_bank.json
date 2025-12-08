@@ -1,0 +1,19 @@
+{
+	"name": "ls_dbw_bank",
+	"properties": {
+		"annotations": [],
+		"type": "AzureDatabricks",
+		"typeProperties": {
+			"domain": "https://adb-3647175012353756.16.azuredatabricks.net",
+			"accessToken": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "ls_akv_bank",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "dbw-key"
+			},
+			"existingClusterId": "1208-210551-090epprm"
+		}
+	}
+}
