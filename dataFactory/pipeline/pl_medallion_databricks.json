@@ -1,0 +1,31 @@
+{
+	"name": "pl_medallion_databricks",
+	"properties": {
+		"activities": [
+			{
+				"name": "Medallion job",
+				"type": "DatabricksJob",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"jobId": "470882380091206"
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_dbw_bank",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "data_transformation"
+		},
+		"annotations": []
+	}
+}
