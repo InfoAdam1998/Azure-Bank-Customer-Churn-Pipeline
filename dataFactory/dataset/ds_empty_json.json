@@ -5,6 +5,9 @@
 			"referenceName": "ls_dl_bank",
 			"type": "LinkedServiceReference"
 		},
+		"folder": {
+			"name": "config"
+		},
 		"annotations": [],
 		"type": "Json",
 		"typeProperties": {
