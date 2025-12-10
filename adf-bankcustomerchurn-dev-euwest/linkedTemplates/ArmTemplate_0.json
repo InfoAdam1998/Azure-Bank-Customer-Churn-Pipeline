@@ -1,0 +1,1292 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "adf-bankcustomerchurn-dev-euwest"
+		},
+		"ls_github_bank_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://raw.githubusercontent.com"
+		},
+		"ls_akv_bank_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://akv-bank.vault.azure.net/"
+		},
+		"ls_dl_bank_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://dlbankcustomerchurn.dfs.core.windows.net/"
+		},
+		"ls_dbw_bank_properties_typeProperties_existingClusterId": {
+			"type": "string",
+			"defaultValue": "1208-210551-090epprm"
+		},
+		"ls_sql_bank_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "sql-server-bank-euwest.database.windows.net"
+		},
+		"ls_sql_bank_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "db-bank-euwest"
+		},
+		"ls_sql_bank_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "bankadmin"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_github_bank')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "HttpServer",
+				"typeProperties": {
+					"url": "[parameters('ls_github_bank_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/uami-credentials')]",
+			"type": "Microsoft.DataFactory/factories/credentials",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "ManagedIdentity",
+				"typeProperties": {
+					"resourceId": "/subscriptions/c9305787-19cf-46de-8474-1f79604c4227/resourcegroups/rg-bankcustomerchurn-dev-euwest/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uami-bank"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_github_data_source')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_github_bank",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"p_rel_url": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "github_to_landing"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "HttpServerLocation",
+						"relativeUrl": {
+							"value": "@dataset().p_rel_url",
+							"type": "Expression"
+						}
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_github_bank')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_akv_bank')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureKeyVault",
+				"typeProperties": {
+					"baseUrl": "[parameters('ls_akv_bank_properties_typeProperties_baseUrl')]",
+					"credential": {
+						"referenceName": "uami-credentials",
+						"type": "CredentialReference"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/credentials/uami-credentials')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_dl_bank')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('ls_dl_bank_properties_typeProperties_url')]",
+					"credential": {
+						"referenceName": "uami-credentials",
+						"type": "CredentialReference"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/credentials/uami-credentials')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_empty_json')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_dl_bank",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "config"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "emtpy.json",
+						"folderPath": "sql_data_ingestion",
+						"fileSystem": "config"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_dl_bank')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_github_landing_sink')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_dl_bank",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"p_file": {
+						"type": "string"
+					},
+					"p_folder": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "github_to_landing"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().p_folder",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().p_file",
+							"type": "Expression"
+						},
+						"fileSystem": "landing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_dl_bank')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_github_params_landing_json')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_dl_bank",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "config"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "params_dataset_landing.json",
+						"folderPath": "http_data_ingestion",
+						"fileSystem": "config"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_dl_bank')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_sql_data_sink')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_dl_bank",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "sql_to_landing"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Bank_Churn.csv",
+						"folderPath": {
+							"value": "@concat('Bank_Churn', '/',formatDateTime(utcNow(), 'yy-MM-dd'))",
+							"type": "Expression"
+						},
+						"fileSystem": "landing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_dl_bank')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_sql_params_landing_json')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_dl_bank",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "config"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "cdc.json",
+						"folderPath": "sql_data_ingestion",
+						"fileSystem": "config"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_dl_bank')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_dbw_bank')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureDatabricks",
+				"typeProperties": {
+					"domain": "https://adb-3647175012353756.16.azuredatabricks.net",
+					"accessToken": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "ls_akv_bank",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "dbw-key"
+					},
+					"existingClusterId": "[parameters('ls_dbw_bank_properties_typeProperties_existingClusterId')]"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_akv_bank')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_sql_bank')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('ls_sql_bank_properties_typeProperties_server')]",
+					"database": "[parameters('ls_sql_bank_properties_typeProperties_database')]",
+					"encrypt": "optional",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('ls_sql_bank_properties_typeProperties_userName')]",
+					"password": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "ls_akv_bank",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "bank-admin"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_akv_bank')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_github_to_landing')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Lookup JSON file",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "ds_github_params_landing_json",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "ForEach JSON file output",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Lookup JSON file",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Lookup JSON file').output.value",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Get Metadata in landing",
+									"type": "GetMetadata",
+									"dependsOn": [
+										{
+											"activity": "Copy data to landing",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataset": {
+											"referenceName": "ds_github_landing_sink",
+											"type": "DatasetReference",
+											"parameters": {
+												"p_file": {
+													"value": "@concat(item().p_folder, '/', formatDateTime(utcNow(), 'yy-MM-dd'))",
+													"type": "Expression"
+												},
+												"p_folder": {
+													"value": "@item().p_file",
+													"type": "Expression"
+												}
+											}
+										},
+										"fieldList": [
+											"exists",
+											"size"
+										],
+										"storeSettings": {
+											"type": "AzureBlobFSReadSettings",
+											"recursive": true,
+											"enablePartitionDiscovery": false
+										},
+										"formatSettings": {
+											"type": "DelimitedTextReadSettings"
+										}
+									}
+								},
+								{
+									"name": "Copy data to landing",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"storeSettings": {
+												"type": "HttpReadSettings",
+												"requestMethod": "GET"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"enableSkipIncompatibleRow": true,
+										"logSettings": {
+											"enableCopyActivityLog": true,
+											"copyActivityLogSettings": {
+												"logLevel": "Info",
+												"enableReliableLogging": false
+											},
+											"logLocationSettings": {
+												"linkedServiceName": {
+													"referenceName": "ls_dl_bank",
+													"type": "LinkedServiceReference"
+												},
+												"path": "failed/ingestion"
+											}
+										},
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_github_data_source",
+											"type": "DatasetReference",
+											"parameters": {
+												"p_rel_url": {
+													"value": "@item().p_rel_url",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_github_landing_sink",
+											"type": "DatasetReference",
+											"parameters": {
+												"p_file": {
+													"value": "@concat(item().p_folder, '/', formatDateTime(utcNow(), 'yy-MM-dd'))",
+													"type": "Expression"
+												},
+												"p_folder": {
+													"value": "@item().p_file",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "If metadata exists",
+									"type": "IfCondition",
+									"dependsOn": [
+										{
+											"activity": "Get Metadata in landing",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"expression": {
+											"value": "@and(activity('Get Metadata in landing').output.exists, greater(activity('Get Metadata in landing').output.size, 0))\n",
+											"type": "Expression"
+										},
+										"ifFalseActivities": [
+											{
+												"name": "Append failed metadata path",
+												"type": "AppendVariable",
+												"dependsOn": [],
+												"userProperties": [],
+												"typeProperties": {
+													"variableName": "v_failedMetadata",
+													"value": {
+														"value": "@concat(item().p_folder, '/', item().p_file)",
+														"type": "Expression"
+													}
+												}
+											}
+										],
+										"ifTrueActivities": [
+											{
+												"name": "Append valid metadata path",
+												"type": "AppendVariable",
+												"dependsOn": [],
+												"userProperties": [],
+												"typeProperties": {
+													"variableName": "v_validMetadata",
+													"value": {
+														"value": "@concat(item().p_folder, '/', item().p_file)",
+														"type": "Expression"
+													}
+												}
+											}
+										]
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Success notification",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Set valid metadata results",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "POST",
+							"headers": {},
+							"url": {
+								"value": "https://prod-247.westeurope.logic.azure.com:443/workflows/7382c1bf13de4850ab6e66e4d18ce5d9/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=-OGrKRitoA1dIvAVgeq-E7Fl5OKB7exuJudRi-Nbt3A",
+								"type": "Expression"
+							},
+							"body": {
+								"value": "{\n    \"pipelineName\": \"@{pipeline().Pipeline}\", \n    \"status\": \"Success\", \n    \"runId\": \"@{pipeline().RunId}\", \n    \"time\": \"@{utcNow()}\" \n}",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Failed notification",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Set failed metadata results",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "POST",
+							"headers": {},
+							"url": {
+								"value": "https://prod-247.westeurope.logic.azure.com:443/workflows/7382c1bf13de4850ab6e66e4d18ce5d9/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=-OGrKRitoA1dIvAVgeq-E7Fl5OKB7exuJudRi-Nbt3A",
+								"type": "Expression"
+							},
+							"body": {
+								"value": "{\n    \"pipelineName\": \"@{pipeline().Pipeline}\", \n    \"status\": \"Failed\", \n    \"runId\": \"@{pipeline().RunId}\", \n    \"time\": \"@{utcNow()}\" \n}",
+								"type": "Expression"
+							},
+							"authentication": {
+								"resource": "akv-bank",
+								"credential": {
+									"referenceName": "uami-credentials",
+									"type": "CredentialReference"
+								},
+								"type": "UserAssignedManagedIdentity"
+							}
+						}
+					},
+					{
+						"name": "Set valid metadata results",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "ForEach JSON file output",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "v_validMetadataResults",
+							"value": {
+								"value": "@string(variables('v_validMetadata'))",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Set failed metadata results",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "ForEach JSON file output",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "v_failedMetadataResults",
+							"value": {
+								"value": "@string(variables('v_failedMetadata'))",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"v_validMetadata": {
+						"type": "Array"
+					},
+					"v_validMetadataResults": {
+						"type": "String"
+					},
+					"v_failedMetadata": {
+						"type": "Array"
+					},
+					"v_failedMetadataResults": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "data_ingestion"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_github_params_landing_json')]",
+				"[concat(variables('factoryId'), '/credentials/uami-credentials')]",
+				"[concat(variables('factoryId'), '/datasets/ds_github_landing_sink')]",
+				"[concat(variables('factoryId'), '/datasets/ds_github_data_source')]",
+				"[concat(variables('factoryId'), '/linkedServices/ls_dl_bank')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_medallion_databricks')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Medallion job",
+						"type": "DatabricksJob",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"jobId": "470882380091206"
+						},
+						"linkedServiceName": {
+							"referenceName": "ls_dbw_bank",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "data_transformation"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_dbw_bank')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_sql_data_source')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sql_bank",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "sql_to_landing"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "CustomerId",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Surname",
+						"type": "varchar"
+					},
+					{
+						"name": "CreditScore",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Geography",
+						"type": "varchar"
+					},
+					{
+						"name": "Gender",
+						"type": "varchar"
+					},
+					{
+						"name": "Age",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Tenure",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Balance",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "NumOfProducts",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "HasCrCard",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "IsActiveMember",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "EstimatedSalary",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "Exited",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Bank_Churn"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sql_bank')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_cdc_to_landing')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Lookup last cdc",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "ds_sql_params_landing_json",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "TotalResults",
+						"type": "Script",
+						"dependsOn": [
+							{
+								"activity": "Lookup last cdc",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"linkedServiceName": {
+							"referenceName": "ls_sql_bank",
+							"type": "LinkedServiceReference"
+						},
+						"typeProperties": {
+							"scripts": [
+								{
+									"type": "Query",
+									"text": {
+										"value": "SELECT COUNT(*) AS total_count \nFROM @{pipeline().parameters.p_schema}.@{pipeline().parameters.p_table} \nWHERE last_updated > '@{activity('Lookup last cdc').output.value[0].cdc_timestamp}'\n",
+										"type": "Expression"
+									}
+								}
+							],
+							"scriptBlockExecutionTimeout": "02:00:00"
+						}
+					},
+					{
+						"name": "If new rows",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "TotalResults",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@greater(activity('TotalResults').output.resultSets[0].rows[0].total_count, 0)",
+								"type": "Expression"
+							},
+							"ifTrueActivities": [
+								{
+									"name": "Copy data from sql",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureSqlSource",
+											"sqlReaderQuery": {
+												"value": "SELECT * \nFROM @{pipeline().parameters.p_schema}.@{pipeline().parameters.p_table} \nWHERE last_updated > '@{activity('Lookup last cdc').output.value[0].cdc_timestamp}'\n",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_sql_data_source",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_sql_data_sink",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									]
+								},
+								{
+									"name": "change_cdc",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "MaxCdc",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "JsonSource",
+											"additionalColumns": [
+												{
+													"name": "cdc_timestamp",
+													"value": {
+														"value": "@activity('MaxCdc').output.resultSets[0].rows[0].cdc_timestamp",
+														"type": "Expression"
+													}
+												}
+											],
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "JsonReadSettings"
+											}
+										},
+										"sink": {
+											"type": "JsonSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "JsonWriteSettings"
+											}
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_empty_json",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_sql_params_landing_json",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									]
+								},
+								{
+									"name": "MaxCdc",
+									"type": "Script",
+									"dependsOn": [
+										{
+											"activity": "Copy data from sql",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"linkedServiceName": {
+										"referenceName": "ls_sql_bank",
+										"type": "LinkedServiceReference"
+									},
+									"typeProperties": {
+										"scripts": [
+											{
+												"type": "Query",
+												"text": {
+													"value": "SELECT MAX(last_updated) AS cdc_timestamp\nFROM @{pipeline().parameters.p_schema}.@{pipeline().parameters.p_table}\n",
+													"type": "Expression"
+												}
+											}
+										],
+										"scriptBlockExecutionTimeout": "02:00:00"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"p_schema": {
+						"type": "string",
+						"defaultValue": "source"
+					},
+					"p_table": {
+						"type": "string",
+						"defaultValue": "Bank_Churn"
+					}
+				},
+				"folder": {
+					"name": "data_ingestion"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_sql_params_landing_json')]",
+				"[concat(variables('factoryId'), '/linkedServices/ls_sql_bank')]",
+				"[concat(variables('factoryId'), '/datasets/ds_sql_data_source')]",
+				"[concat(variables('factoryId'), '/datasets/ds_sql_data_sink')]",
+				"[concat(variables('factoryId'), '/datasets/ds_empty_json')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_execute_full_batch')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Execute Pipeline data ingestion",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_github_to_landing",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "Execute Pipeline databricks transformation",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Execute Pipeline data ingestion",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_medallion_databricks",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "full_batch"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/pl_github_to_landing')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_medallion_databricks')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_execute_incremental')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Execute Pipeline data ingestion",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_cdc_to_landing",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"p_schema": "source",
+								"p_table": "Bank_Churn"
+							}
+						}
+					},
+					{
+						"name": "Execute Pipeline databricks transformation",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Execute Pipeline data ingestion",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_medallion_databricks",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "incremental_loading"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/pl_cdc_to_landing')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_medallion_databricks')]"
+			]
+		}
+	]
+}

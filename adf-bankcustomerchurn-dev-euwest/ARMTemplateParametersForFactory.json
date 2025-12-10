@@ -1,0 +1,30 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "adf-bankcustomerchurn-dev-euwest"
+		},
+		"ls_akv_bank_properties_typeProperties_baseUrl": {
+			"value": "https://akv-bank.vault.azure.net/"
+		},
+		"ls_dbw_bank_properties_typeProperties_existingClusterId": {
+			"value": "1208-210551-090epprm"
+		},
+		"ls_dl_bank_properties_typeProperties_url": {
+			"value": "https://dlbankcustomerchurn.dfs.core.windows.net/"
+		},
+		"ls_github_bank_properties_typeProperties_url": {
+			"value": "https://raw.githubusercontent.com"
+		},
+		"ls_sql_bank_properties_typeProperties_server": {
+			"value": "sql-server-bank-euwest.database.windows.net"
+		},
+		"ls_sql_bank_properties_typeProperties_database": {
+			"value": "db-bank-euwest"
+		},
+		"ls_sql_bank_properties_typeProperties_userName": {
+			"value": "bankadmin"
+		}
+	}
+}
