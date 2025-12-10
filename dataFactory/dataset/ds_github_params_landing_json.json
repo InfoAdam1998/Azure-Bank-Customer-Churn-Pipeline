@@ -1,0 +1,22 @@
+{
+	"name": "ds_github_params_landing_json",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_dl_bank",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "config"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "params_dataset_landing.json",
+				"fileSystem": "config"
+			}
+		},
+		"schema": {}
+	}
+}

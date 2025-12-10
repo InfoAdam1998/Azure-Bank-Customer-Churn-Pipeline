@@ -1,0 +1,30 @@
+{
+	"name": "ds_sql_data_sink",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_dl_bank",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "sql_to_landing"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Bank_Churn.csv",
+				"folderPath": {
+					"value": "@concat('Bank_Churn', '/',formatDateTime(utcNow(), 'yy-MM-dd'))",
+					"type": "Expression"
+				},
+				"fileSystem": "landing"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}

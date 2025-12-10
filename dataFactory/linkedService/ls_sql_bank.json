@@ -1,0 +1,23 @@
+{
+	"name": "ls_sql_bank",
+	"properties": {
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"server": "sql-server-bank-euwest.database.windows.net",
+			"database": "db-bank-euwest",
+			"encrypt": "optional",
+			"trustServerCertificate": false,
+			"authenticationType": "SQL",
+			"userName": "bankadmin",
+			"password": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "ls_akv_bank",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "bank-admin"
+			}
+		}
+	}
+}

@@ -27,7 +27,7 @@
 						}
 					},
 					"dataset": {
-						"referenceName": "ds_github_to_landing",
+						"referenceName": "ds_github_params_landing_json",
 						"type": "DatasetReference"
 					},
 					"firstRowOnly": false
