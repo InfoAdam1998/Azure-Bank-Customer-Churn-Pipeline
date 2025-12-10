@@ -14,6 +14,7 @@
 			"location": {
 				"type": "AzureBlobFSLocation",
 				"fileName": "params_dataset_landing.json",
+				"folderPath": "http_data_ingestion",
 				"fileSystem": "config"
 			}
 		},
