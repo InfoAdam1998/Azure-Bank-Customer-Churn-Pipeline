@@ -42,6 +42,9 @@
 				}
 			}
 		],
+		"folder": {
+			"name": "full_batch"
+		},
 		"annotations": []
 	}
 }
