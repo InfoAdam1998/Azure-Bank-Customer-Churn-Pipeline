@@ -1,0 +1,20 @@
+{
+	"name": "ds_empty_json",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_dl_bank",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "emtpy.json",
+				"folderPath": "sql_data_ingestion",
+				"fileSystem": "config"
+			}
+		},
+		"schema": {}
+	}
+}
