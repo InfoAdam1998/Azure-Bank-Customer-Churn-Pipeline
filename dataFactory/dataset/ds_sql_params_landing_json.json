@@ -1,5 +1,5 @@
 {
-	"name": "ds_github_params_landing_json",
+	"name": "ds_sql_params_landing_json",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "ls_dl_bank",
@@ -13,7 +13,8 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "params_dataset_landing.json",
+				"fileName": "cdc.json",
+				"folderPath": "sql_data_ingestion",
 				"fileSystem": "config"
 			}
 		},

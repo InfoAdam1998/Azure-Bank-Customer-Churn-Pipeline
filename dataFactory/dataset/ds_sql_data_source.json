@@ -1,0 +1,82 @@
+{
+	"name": "ds_sql_data_source",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sql_bank",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "sql_to_landing"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "CustomerId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Surname",
+				"type": "varchar"
+			},
+			{
+				"name": "CreditScore",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Geography",
+				"type": "varchar"
+			},
+			{
+				"name": "Gender",
+				"type": "varchar"
+			},
+			{
+				"name": "Age",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Tenure",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Balance",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "NumOfProducts",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "HasCrCard",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "IsActiveMember",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "EstimatedSalary",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "Exited",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Bank_Churn"
+		}
+	}
+}
