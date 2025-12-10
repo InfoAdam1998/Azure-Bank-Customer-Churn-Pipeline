@@ -34,9 +34,16 @@
 				}
 			},
 			{
-				"name": "Copy data1",
+				"name": "Copy data from sql",
 				"type": "Copy",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Lookup last cdc",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -46,10 +53,60 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"enableStaging": false
-				}
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "SELECT * \nFROM @{pipeline().parameters.p_schema}.@{pipeline().parameters.p_table} \nWHERE last_updated > '@{activity('Lookup last cdc').output.value[0].cdc_timestamp}'\n",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_sql_data_source",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_sql_data_sink",
+						"type": "DatasetReference"
+					}
+				]
 			}
 		],
+		"parameters": {
+			"p_schema": {
+				"type": "string",
+				"defaultValue": "source"
+			},
+			"p_table": {
+				"type": "string",
+				"defaultValue": "Bank_Churn"
+			}
+		},
 		"folder": {
 			"name": "data_ingestion"
 		},
