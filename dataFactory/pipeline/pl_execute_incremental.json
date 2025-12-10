@@ -1,5 +1,5 @@
 {
-	"name": "pl_execute_full_batch",
+	"name": "pl_execute_incremental",
 	"properties": {
 		"activities": [
 			{
@@ -12,10 +12,14 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "pl_github_to_landing",
+						"referenceName": "pl_cdc_to_landing",
 						"type": "PipelineReference"
 					},
-					"waitOnCompletion": true
+					"waitOnCompletion": true,
+					"parameters": {
+						"p_schema": "source",
+						"p_table": "Bank_Churn"
+					}
 				}
 			},
 			{
