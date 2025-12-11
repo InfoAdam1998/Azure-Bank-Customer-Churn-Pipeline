@@ -13,7 +13,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "Bank_Churn_sql.csv",
+				"fileName": "Bank_Churn.csv",
 				"folderPath": "Bank_Churn",
 				"fileSystem": "landing"
 			},
