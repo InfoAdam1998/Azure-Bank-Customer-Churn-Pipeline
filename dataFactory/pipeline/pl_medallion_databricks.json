@@ -24,7 +24,7 @@
 			}
 		],
 		"folder": {
-			"name": "data_transformation"
+			"name": "dedicated_pipelines/data_transformation"
 		},
 		"annotations": []
 	}

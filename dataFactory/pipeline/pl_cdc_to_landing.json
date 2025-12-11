@@ -258,7 +258,7 @@
 			}
 		},
 		"folder": {
-			"name": "data_ingestion"
+			"name": "dedicated_pipelines/data_ingestion"
 		},
 		"annotations": []
 	}

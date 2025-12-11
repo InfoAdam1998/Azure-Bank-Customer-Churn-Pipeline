@@ -47,7 +47,7 @@
 			}
 		],
 		"folder": {
-			"name": "incremental_loading"
+			"name": "executive_pipelines/incremental_loading"
 		},
 		"annotations": []
 	}
