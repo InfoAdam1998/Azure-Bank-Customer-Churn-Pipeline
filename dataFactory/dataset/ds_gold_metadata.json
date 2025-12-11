@@ -1,0 +1,18 @@
+{
+	"name": "ds_gold_metadata",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_dl_bank",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "Bank_Churn",
+				"fileSystem": "gold"
+			}
+		}
+	}
+}
