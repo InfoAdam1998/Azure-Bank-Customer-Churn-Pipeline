@@ -310,7 +310,7 @@
 					}
 				},
 				"folder": {
-					"name": "data_ingestion"
+					"name": "dedicated_pipelines/data_ingestion"
 				},
 				"annotations": []
 			},
@@ -374,7 +374,7 @@
 					"elapsedTimeMetric": {}
 				},
 				"folder": {
-					"name": "full_batch"
+					"name": "executive_pipelines/full_batch"
 				},
 				"annotations": []
 			},
@@ -438,7 +438,7 @@
 					"elapsedTimeMetric": {}
 				},
 				"folder": {
-					"name": "incremental_loading"
+					"name": "executive_pipelines/incremental_loading"
 				},
 				"annotations": []
 			},
@@ -830,7 +830,7 @@
 					}
 				},
 				"folder": {
-					"name": "data_ingestion"
+					"name": "dedicated_pipelines/data_ingestion"
 				},
 				"annotations": []
 			},
@@ -873,7 +873,7 @@
 					"elapsedTimeMetric": {}
 				},
 				"folder": {
-					"name": "data_transformation"
+					"name": "dedicated_pipelines/data_transformation"
 				},
 				"annotations": []
 			},
@@ -1040,7 +1040,7 @@
 						"type": "AzureBlobFSLocation",
 						"fileName": "Bank_Churn.csv",
 						"folderPath": {
-							"value": "@concat('Bank_Churn', '/',formatDateTime(utcNow(), 'yy-MM-dd'))",
+							"value": "@concat('Bank_Churn/', formatDateTime(utcNow(), 'yyyyMMdd_HHmm'))",
 							"type": "Expression"
 						},
 						"fileSystem": "landing"
