@@ -14,7 +14,10 @@
 			"location": {
 				"type": "AzureBlobFSLocation",
 				"fileName": "Bank_Churn.csv",
-				"folderPath": "Bank_Churn",
+				"folderPath": {
+					"value": "@concat('Bank_Churn/', formatDateTime(utcNow(), 'yyyyMMdd_HHmm'))",
+					"type": "Expression"
+				},
 				"fileSystem": "landing"
 			},
 			"columnDelimiter": ",",
