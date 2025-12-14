@@ -1,0 +1,27 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"workspaceName": {
+			"value": "saw-bankcustomerchurn-dev-euwest"
+		},
+		"ls_dl_bank_accountKey": {
+			"value": ""
+		},
+		"saw-bankcustomerchurn-dev-euwest-WorkspaceDefaultSqlServer_connectionString": {
+			"value": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=tcp:saw-bankcustomerchurn-dev-euwest.sql.azuresynapse.net,1433;Initial Catalog=@{linkedService().DBName}"
+		},
+		"ls_dl_bank_properties_typeProperties_url": {
+			"value": "https://dlbankcustomerchurn.dfs.core.windows.net/"
+		},
+		"ls_sql_bank_properties_typeProperties_server": {
+			"value": "saw-bankcustomerchurn-dev-euwest-ondemand.sql.azuresynapse.net"
+		},
+		"ls_sql_bank_properties_typeProperties_database": {
+			"value": "gold_db"
+		},
+		"saw-bankcustomerchurn-dev-euwest-WorkspaceDefaultStorage_properties_typeProperties_url": {
+			"value": "https://dlbankcustomerchurn.dfs.core.windows.net"
+		}
+	}
+}
