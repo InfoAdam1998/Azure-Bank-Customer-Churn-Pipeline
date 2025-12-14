@@ -947,7 +947,7 @@
 								{
 									"type": "Query",
 									"text": {
-										"value": "SELECT COUNT(*) AS total_count \nFROM @{pipeline().parameters.p_schema}.@{pipeline().parameters.p_table} \nWHERE last_updated > '@{activity('Lookup last cdc').output.value[0].cdc_timestamp}'\n",
+										"value": "SELECT COUNT(*) AS total_count FROM @{pipeline().parameters.p_schema}.@{pipeline().parameters.p_table} WHERE last_updated > '@{activity('Lookup last cdc').output.value[0].cdc_timestamp}'",
 										"type": "Expression"
 									}
 								}
