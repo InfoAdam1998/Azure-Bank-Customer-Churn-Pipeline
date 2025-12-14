@@ -24,6 +24,7 @@
 					],
 					"storeSettings": {
 						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
 						"enablePartitionDiscovery": false
 					},
 					"formatSettings": {
@@ -68,7 +69,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('Filter delta log').output.Value",
+						"value": "@activity('Filter delta log').output.value",
 						"type": "Expression"
 					},
 					"activities": [
@@ -89,7 +90,7 @@
 								"storedProcedureParameters": {
 									"@CountryName": {
 										"value": {
-											"value": "@replace(item().name,'geography=','')",
+											"value": "@replace(item().name, 'geography=', '')",
 											"type": "Expression"
 										},
 										"type": "String"

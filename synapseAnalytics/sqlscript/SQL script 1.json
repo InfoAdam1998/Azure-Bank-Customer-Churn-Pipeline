@@ -2,7 +2,7 @@
 	"name": "SQL script 1",
 	"properties": {
 		"content": {
-			"query": "CREATE OR ALTER PROCEDURE usp_CreateCountryView\n    @CountryName NVARCHAR(100)\nAS\nBEGIN\n    DECLARE @SQL NVARCHAR(MAX);\n\n    SET @SQL = '\n    IF OBJECT_ID(''' + @CountryName + 'View'', ''V'') IS NOT NULL\n        DROP VIEW ' + @CountryName + 'View;\n\n    CREATE VIEW ' + @CountryName + 'View AS\n    SELECT *\n    FROM OPENROWSET(\n        BULK ''https://dlbankcustomerchurn.dfs.core.windows.net/gold/Bank_Churn/geography=' + @CountryName + '/'' ,\n        FORMAT = ''PARQUET''\n    ) AS result;\n    ';\n\n    EXEC sp_executesql @SQL;\nEND;\n",
+			"query": "USE gold_db\nGO\n\nCREATE OR ALTER PROCEDURE dbo.usp_CreateCountryView\n    @CountryName NVARCHAR(100)\nAS\nBEGIN\n    DECLARE @SQL NVARCHAR(MAX);\n\n    SET @SQL = N'\n    CREATE OR ALTER VIEW ' + QUOTENAME(@CountryName + 'View') + N' AS\n    SELECT *\n    FROM OPENROWSET(\n        BULK ''https://dlbankcustomerchurn.dfs.core.windows.net/gold/Bank_Churn/geography=' + @CountryName + N'/'',\n        FORMAT = ''PARQUET''\n    ) AS result;\n    ';\n\n    EXEC sp_executesql @SQL;\nEND;\nGO\n",
 			"metadata": {
 				"language": "sql"
 			},
