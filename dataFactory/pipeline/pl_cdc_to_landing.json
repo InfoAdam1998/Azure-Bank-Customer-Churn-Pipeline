@@ -245,6 +245,76 @@
 						}
 					]
 				}
+			},
+			{
+				"name": "Success notification",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "If new rows",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "POST",
+					"url": {
+						"value": "https://prod-247.westeurope.logic.azure.com:443/workflows/7382c1bf13de4850ab6e66e4d18ce5d9/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=-OGrKRitoA1dIvAVgeq-E7Fl5OKB7exuJudRi-Nbt3A",
+						"type": "Expression"
+					},
+					"body": {
+						"value": "{\n    \"pipelineName\": \"@{pipeline().Pipeline}\", \n    \"status\": \"Success\", \n    \"runId\": \"@{pipeline().RunId}\", \n    \"time\": \"@{utcNow()}\" \n}",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Failed notification",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "If new rows",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "POST",
+					"url": {
+						"value": "https://prod-247.westeurope.logic.azure.com:443/workflows/7382c1bf13de4850ab6e66e4d18ce5d9/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=-OGrKRitoA1dIvAVgeq-E7Fl5OKB7exuJudRi-Nbt3A",
+						"type": "Expression"
+					},
+					"body": {
+						"value": "{\n    \"pipelineName\": \"@{pipeline().Pipeline}\", \n    \"status\": \"Failed\", \n    \"runId\": \"@{pipeline().RunId}\", \n    \"time\": \"@{utcNow()}\" \n}",
+						"type": "Expression"
+					},
+					"authentication": {
+						"resource": "akv-bank",
+						"credential": {
+							"referenceName": "uami-credentials",
+							"type": "CredentialReference"
+						},
+						"type": "UserAssignedManagedIdentity"
+					}
+				}
 			}
 		],
 		"parameters": {
