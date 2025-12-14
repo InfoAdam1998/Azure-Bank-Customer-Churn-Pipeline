@@ -1,94 +1,97 @@
-# Bank Customer Churn – Data Engineering Project
+# Bank Customer Churn – Azure Data Engineering Project
 
-<img width="1729" height="775" alt="Intech Azure Data Engineering Architecture (2)" src="https://github.com/user-attachments/assets/6ed23273-30c7-4319-8eaa-423f4f030670" />
+<img width="1729" height="775" alt="Intech Azure Data Engineering Architecture (2)" src="https://github.com/user-attachments/assets/51531318-9704-4a9f-a2dd-bf89772876b0" />
 
-## About This Project
+## Project Overview
 
-This is my first independent data engineering project, where I built a complete pipeline to process and analyze the Bank Customer Churn dataset from Maven Analytics. The goal was to gain hands-on experience with **Azure Data Factory (ADF), Azure Databricks, and Synapse Analytics**, while following best practices in **security, cost management, and data governance**.
+This repository contains an **end-to-end Azure data engineering pipeline** built to ingest, process, and serve analytics-ready data using modern, production-style patterns.
 
-The project implements a **medallion architecture (Landing → Bronze → Silver → Gold)** to ensure data traceability, quality, and analytics readiness.
+The project processes the **Bank Customer Churn dataset** and demonstrates how to design a scalable and secure data platform using **Azure Data Factory, Azure Data Lake Gen2, Databricks (Delta Lake), and Synapse Analytics**.
 
----
-
-## Pipeline Overview
-
-### Data Ingestion
-
-Data is ingested via **Azure Data Factory** from two sources:
-
-- **Web / HTTP** – pulls the Bank Customer Churn dataset directly from my **GitHub** dataset folder.  
-- **Azure SQL Database** – adds fabricated data to test **Change Data Capture (CDC)** and validate the full medallion pipeline.
-
-All ingested data lands in the **Landing container** within **Azure Data Lake Gen2**, which also contains folders for the medallion layers and supporting pipeline management:
-
-Landing → Bronze → Silver → Gold  
-Supporting: Checkpoints, Config, Failed, Synapse-fs
-
-**Supporting Containers Explained:**
-
-- **Failed:** Stores any corrupted or problematic files that cannot be processed.  
-- **Config:** Contains JSON configuration files used to dynamically read datasets during ingestion and track CDC timestamps for incremental loads.  
-- **Checkpoints:** Stores schema evolution information and Auto Loader checkpoints from Bronze for incremental ingestion and tracking.  
-
-**Key Features:**
-
-- Supports **full load** or **incremental CDC**.  
-- Alerts and notifications via **Logic Apps**.  
-- Fabricated SQL data expands the dataset beyond the original 3 countries.
+The architecture follows the **medallion pattern (Landing → Bronze → Silver → Gold)** to ensure data traceability, quality, and efficient analytics consumption.
 
 ---
 
-### Medallion Architecture (Bronze → Silver → Gold)
+## Architecture & Design
 
-**Bronze (Raw + Metadata):**
+**Core components:**
 
-- Stores raw ingested data in **Delta format** for versioning and traceability.  
-- Includes metadata for **batches, sources, and processing**.  
-- Uses **Databricks Auto Loader** for automatic ingestion and schema evolution.  
-- **Checkpoints** and schema evolution info are stored in the **Checkpoints container**.
+- **Azure Data Factory (ADF)** – orchestration, ingestion, and CDC handling  
+- **Azure Data Lake Gen2** – centralized storage for all pipeline layers  
+- **Azure Databricks** – transformation, schema evolution, and Delta Lake management  
+- **Azure Synapse Analytics** – analytics and reporting layer  
 
-**Silver (Cleaned/Enriched):**
-
-- Cleans, transforms, and normalizes the data, type corrections, and enrichment.
-
-**Gold (Curated / Analytics-ready):**
-
-- Aggregates and partitions data by **country**.  
-- Stored in **Delta format**, ready for **Synapse queries** and reporting.
-
-**Security & Access:**
-
-- Managed via **Service Principal** and **Azure Key Vault**.  
-- Role-based access through **Entra ID** with **least privilege principles**.
+**Architecture Pattern:**  
+Medallion architecture with Delta Lake (Landing → Bronze → Silver → Gold)
 
 ---
 
-### Synapse Analytics
+## Data Ingestion
 
-- Gold tables are used to create **views partitioned by country** for fast queries.  
-- Views are currently created manually. Future work includes **automating view creation** via stored procedures.
+Data is ingested using **Azure Data Factory** from multiple sources:
 
----
+- **HTTP source** – pulls the churn dataset from a GitHub-hosted data source  
+- **Azure SQL Database** – injects fabricated records to validate **Change Data Capture (CDC)**
 
-### Cost & Security Optimizations
+All data lands in the **Landing layer** of ADLS Gen2.
 
-- **Incremental loads** and **partitioned Delta tables** reduce storage and compute costs.  
-- **Service Principals, Key Vault, and Entra ID** ensure secure access.  
-- **Checkpoints** prevent reprocessing of old data.
+**Ingestion features:**
 
----
-
-### Version Control & CI/CD
-
-- All code tracked in **GitHub** with feature branches merged into `main`.  
-- **ARM templates** store infrastructure-as-code.  
-- **CI** is in place and **CD** is planned for full automation.
+- Supports **full loads** and **incremental CDC**
+- Schema evolution handled via **Databricks Auto Loader**
+- Alerts and pipeline notifications via **Logic Apps**
 
 ---
 
-## Plans to enhance this project
+## Data Processing (Medallion Layers)
 
-- Implement **SCD2** in Silver for historical data tracking.  
-- Integrate **Unity Catalog** for enhanced governance.  
-- Complete full **CI/CD** for Databricks, ADF, and Synapse artifacts.  
-- Automate **dynamic Synapse view creation** based on Gold partitions.
+### Bronze – Raw + Metadata
+- Raw ingested data stored in **Delta format**
+- Metadata captured for source, batch, and processing information
+- Auto Loader used for incremental ingestion and schema evolution
+- Checkpoints stored to guarantee idempotent processing
+
+### Silver – Cleaned & Enriched
+- Data cleansing and normalization
+- Type corrections and enrichment logic applied
+- Designed as the foundation for downstream analytics
+
+### Gold – Analytics Ready
+- Curated datasets aggregated and **partitioned by country**
+- Stored in **Delta format** for optimized query performance
+- Consumed directly by Synapse Analytics
+
+---
+
+## Analytics Layer (Synapse)
+
+- Gold tables exposed through **country-partitioned views**
+- Views currently created manually
+- Designed for future automation via stored procedures or ADF
+
+---
+
+## Security & Cost Optimization
+
+- Secure access using **Service Principals and Azure Key Vault**
+- Role-based access via **Microsoft Entra ID** (least-privilege)
+- **Incremental processing and Delta partitioning** to reduce compute and storage costs
+- Checkpoints prevent unnecessary reprocessing
+
+---
+
+## Version Control & CI/CD
+
+- Source-controlled in **GitHub** using feature branches and pull requests
+- Infrastructure managed via **ARM templates**
+- Continuous Integration implemented  
+- Continuous Deployment planned
+
+---
+
+## Future Enhancements
+
+- Implement **Slowly Changing Dimensions (SCD Type 2)** in Silver
+- Integrate **Unity Catalog** for improved governance
+- Complete end-to-end **CI/CD automation**
+- Automate dynamic Synapse view creation based on Gold partitions
