@@ -4,7 +4,7 @@
 
 ## About This Project
 
-This is my first independent **data engineering project**, where I built a complete pipeline to process and analyze the **Bank Customer Churn** dataset from Maven Analytics. The goal was to gain hands-on experience with **Azure Data Factory (ADF), Azure Data Lake Gen2, Databricks, and Synapse Analytics**, while following best practices in **security, cost management, and data governance**.
+This is my first independent data engineering project, where I built a complete pipeline to process and analyze the Bank Customer Churn dataset from Maven Analytics. The goal was to gain hands-on experience with **Azure Data Factory (ADF), Azure Databricks, and Synapse Analytics**, while following best practices in **security, cost management, and data governance**.
 
 The project implements a **medallion architecture (Landing → Bronze → Silver → Gold)** to ensure data traceability, quality, and analytics readiness.
 
@@ -16,7 +16,7 @@ The project implements a **medallion architecture (Landing → Bronze → Silver
 
 Data is ingested via **Azure Data Factory** from two sources:
 
-- **Web / HTTP** – pulls the Bank Customer Churn dataset directly from Maven Analytics.  
+- **Web / HTTP** – pulls the Bank Customer Churn dataset directly from my **GitHub** dataset folder.  
 - **Azure SQL Database** – adds fabricated data to test **Change Data Capture (CDC)** and validate the full medallion pipeline.
 
 All ingested data lands in the **Landing container** within **Azure Data Lake Gen2**, which also contains folders for the medallion layers and supporting pipeline management:
@@ -49,8 +49,7 @@ Supporting: Checkpoints, Config, Failed, Synapse-fs
 
 **Silver (Cleaned/Enriched):**
 
-- Cleans, transforms, and normalizes the data.  
-- Handles **missing values**, type corrections, and enrichment.
+- Cleans, transforms, and normalizes the data, type corrections, and enrichment.
 
 **Gold (Curated / Analytics-ready):**
 
@@ -67,7 +66,7 @@ Supporting: Checkpoints, Config, Failed, Synapse-fs
 ### Synapse Analytics
 
 - Gold tables are used to create **views partitioned by country** for fast queries.  
-- Views are currently created manually; future work includes **automating view creation** via stored procedures or ADF.
+- Views are currently created manually. Future work includes **automating view creation** via stored procedures.
 
 ---
 
@@ -83,24 +82,13 @@ Supporting: Checkpoints, Config, Failed, Synapse-fs
 
 - All code tracked in **GitHub** with feature branches merged into `main`.  
 - **ARM templates** store infrastructure-as-code.  
-- **CI** is in place; **CD** is planned for full automation.
+- **CI** is in place and **CD** is planned for full automation.
 
 ---
 
-## Limitations & Next Steps
+## Plans to enhance this project
 
 - Implement **SCD2** in Silver for historical data tracking.  
 - Integrate **Unity Catalog** for enhanced governance.  
 - Complete full **CI/CD** for Databricks, ADF, and Synapse artifacts.  
 - Automate **dynamic Synapse view creation** based on Gold partitions.
-
----
-
-## Highlights
-
-- First independent **full-stack data engineering project** using ADF, Databricks, and Synapse.  
-- Handles both **web ingestion** and **SQL CDC** simultaneously.  
-- Uses **Delta tables** and metadata for traceability.  
-- **Partitioned by country** for fast analytics queries.  
-- Built with **security and cost optimization** in mind.  
-- **Failed, Config, and Checkpoints** containers improve reliability and automation.
