@@ -1,0 +1,33 @@
+INTEGRATION RUNTIME NOTES
+
+ISSUE: Creating an Integration Runtime Configuration
+Error:
+Access to 'C:\Users\steve\Desktop\azure_orders_project\02_crm_project\dataset' is not allowed.
+
+FIX: Disable Local Folder Path Validation
+1. Navigate to:
+OS -> Program Files -> Microsoft Integration Runtime -> 5.0 -> Shared
+
+2. Open PowerShell as Administrator
+
+3. Run:
+cd "C:\Program Files\Microsoft Integration Runtime\5.0\Shared"
+
+4. Disable local folder path validation:
+./dmgcmd -DisableLocalFolderPathValidation
+
+
+DATABRICKS: Access Scope Creation
+Use the following URL to create a secret scope:
+https://adb-3027919829642457.17.azuredatabricks.net/#secrets/createScope
+
+
+INTEGRATION RUNTIME -> SQL SERVER SETUP
+
+-- Create login and user
+CREATE LOGIN adam WITH PASSWORD = '123456789';
+CREATE USER adam FOR LOGIN adam;
+
+-- Grant permissions
+USE AdventureWorks2019;
+GRANT SELECT ON Sales.SalesPerson TO adam;

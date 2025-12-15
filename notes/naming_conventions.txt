@@ -1,0 +1,100 @@
+AZURE NAMING CONVENTIONS & ARCHITECTURE NOTES
+
+
+RESOURCE GROUP
+- Name: rg-orders-dev-euwest-001
+
+Tags:
+- Environment: Dev
+- Project: Orders
+- Owner: YourName
+
+
+BLOB / ADLS GEN2 STORAGE
+- storders001
+- dlorders001
+
+
+AZURE DATA FACTORY (ADF)
+- ADF name: adf-orders-dev-euwest
+- Linked Service: ls_akv
+- Pipeline: pl_order_items_landing_to_raw
+- Dataset: ds_landing_order_items
+- Credential (UAMI): uami-credential-orders (located in Credentials)
+
+
+USER-ASSIGNED MANAGED IDENTITIES & SERVICE PRINCIPALS
+- User-assigned managed identity: uami-orders
+- Service principal (App Registration): app-orders
+
+
+AZURE KEY VAULT
+- akv-orders
+- akv-dl-key
+
+
+DATA FLOWS
+- df_orders_raw_to_cleansed
+
+
+AZURE DEVOPS
+- adf_orders_dev_euwest
+
+
+AZURE DATABRICKS
+- Workspace: dbw-crm-dev-euwest-001
+- Managed resource group: rg-dbw-intech-dev-euwest-managed
+
+
+DATA LAKE ARCHITECTURE
+
+Landing:
+- Contains source data as-is (no transformations)
+
+Raw:
+- Folder per ingestion date
+- Data stored unchanged
+
+Cleansed:
+- Folder per dataset
+- Subfolder per date
+
+Structured:
+- Folder per dataset
+- Uses partitions OR overwritten simple data files
+
+NOTE:
+The above lake-based architecture does NOT support UPSERT operations efficiently in the Structured layer.
+Therefore, SQL Azure Database will be used for UPSERT-capable workloads.
+
+
+AZURE SQL DATABASE
+- Database name: sqldb-orders-dev
+- SQL Server name: sqlserver-orders-dev
+- Authentication: SQL authentication
+- Admin credentials: sqladmin / Mur61832
+
+
+INTEGRATION RUNTIME
+- Name: onPremtoAzureIntegrationRuntime
+
+
+LOGIC APP
+- Name: la-crm-dev-euwest
+
+
+ACCESS MANAGEMENT
+
+Azure:
+1. Add user
+2. Assign appropriate role
+
+Databricks:
+1. Add users or groups
+2. Assign workspace permissions
+
+
+DATABRICKS SECRET SCOPE
+- Access URL:
+  https://adb-3027919829642457.17.azuredatabricks.net/?o=3027919829642457#secrets/createScope
+- Scope name: databricks-crm-scope
