@@ -1,6 +1,6 @@
 # Bank Customer Churn – Azure Data Engineering Project
 
-<img width="1729" height="775" alt="Intech Azure Data Engineering Architecture (2)" src="https://github.com/user-attachments/assets/51531318-9704-4a9f-a2dd-bf89772876b0" />
+<img width="1729" height="775" alt="Intech Azure Data Engineering Architecture (2)" src="https://github.com/user-attachments/assets/9998c7e2-d602-455f-8ae5-90981deba063" />
 
 ## Project Overview
 
