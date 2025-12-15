@@ -6,9 +6,9 @@
 
 This repository contains an **end-to-end Azure data engineering pipeline** built to ingest, process, and serve analytics-ready data using modern, production-style patterns.
 
-The project processes the **Bank Customer Churn dataset** and demonstrates how to design a scalable and secure data platform using **Azure Data Factory, Azure Data Lake Gen2, Databricks (Delta Lake), and Synapse Analytics**.
+The project processes the **Bank Customer Churn dataset** and demonstrates how to design a scalable and secure data platform using **Azure Data Factory, Azure Data Lake Gen2, Databricks, and Synapse Analytics**.
 
-The architecture follows the **medallion pattern (Landing → Bronze → Silver → Gold)** to ensure data traceability, quality, and efficient analytics consumption.
+The architecture follows the **medallion pattern (Landing → Bronze → Silver → Gold)**.
 
 ---
 
@@ -31,7 +31,7 @@ Medallion architecture with Delta Lake (Landing → Bronze → Silver → Gold)
 Data is ingested using **Azure Data Factory** from multiple sources:
 
 - **HTTP source** – pulls the churn dataset from a GitHub-hosted data source  
-- **Azure SQL Database** – injects fabricated records to validate **Change Data Capture (CDC)**
+- **Azure SQL Database** – injects fabricated records to validate **Change Data Capture (CDC)** functionality
 
 All data lands in the **Landing layer** of ADLS Gen2.
 
@@ -66,8 +66,6 @@ All data lands in the **Landing layer** of ADLS Gen2.
 ## Analytics Layer (Synapse)
 
 - Gold tables exposed through **country-partitioned views**
-- Views currently created manually
-- Designed for future automation via stored procedures or ADF
 
 ---
 
@@ -83,9 +81,7 @@ All data lands in the **Landing layer** of ADLS Gen2.
 ## Version Control & CI/CD
 
 - Source-controlled in **GitHub** using feature branches and pull requests
-- Infrastructure managed via **ARM templates**
-- Continuous Integration implemented  
-- Continuous Deployment planned
+- **ARM templates** are generated and stored for Continuous Integration.
 
 ---
 
@@ -94,4 +90,4 @@ All data lands in the **Landing layer** of ADLS Gen2.
 - Implement **Slowly Changing Dimensions (SCD Type 2)** in Silver
 - Integrate **Unity Catalog** for improved governance
 - Complete end-to-end **CI/CD automation**
-- Automate dynamic Synapse view creation based on Gold partitions
+- Automate dynamic Synapse view creation using a stored procedure based on Gold partitions
